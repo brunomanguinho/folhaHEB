@@ -1,0 +1,10 @@
+<%- include("header") %>
+    <% if (mensagem !== "") {%>
+    <label class="error-message"><%=mensagem%></label> <br /><br />
+    <%}%>
+    <form action="/" method="post">
+      <label>Nome Completo</label> <br>
+      <input type="text" name="nome" style="width:400px;text-transform:uppercase;"> <br>
+      <button type="submit" name="login">ENTRAR</button>
+    </form>
+<%- include("footer") %>

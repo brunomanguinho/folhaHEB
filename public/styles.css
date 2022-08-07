@@ -1,0 +1,18 @@
+.titulo{
+  text-align: center;
+}
+
+.header-name{
+  min-width: 300px;
+}
+.header-info{
+  min-width: 200px;
+}
+.header-value{
+  min-width: 64px;
+}
+
+.error-message{
+  color: red;
+  font-style: italic;
+}

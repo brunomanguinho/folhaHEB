@@ -1,0 +1,35 @@
+<%- include("header") %>
+
+    <h3>Relação de pagamentos a <%=nomeCompleto %></h3>
+
+    <hr>
+
+    <table width="100%" border="1px">
+      <thead>
+        <tr>
+          <% Object.keys(items).forEach((item, i) =>{%>
+            <% if (i === 0){%>
+              <th class="header-name"> <%-item%> </th>
+            <%}else if ( (i > 0) && (i < 3) ){%>
+              <th class="header-info"> <%-item%> </th>
+            <%}
+            else  {%>
+              <th class="header-value"> <%- item %> </th>
+            <%}%>
+          <%})%>
+        </tr>
+      </thead>
+      <tr>
+        <% Object.values(items).forEach( (item, i) => {%>
+          <td>
+            <% if (i >= 3) { %>
+              <%-item.toLocaleString("pt-BR", {style: "currency", currency: "BRL"}) %>
+            <%} else { %>
+               <%-item %>
+             <%}%>
+          </td>
+        <%})%>
+      </tr>
+    </table>
+  </body>
+</html>

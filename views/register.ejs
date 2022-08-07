@@ -1,0 +1,16 @@
+<%- include("header") %>
+
+    <h3><%=nomeCompleto%></h3>
+    <form action="/register" method="post">
+      <% if (mensagem !== "") {%>
+      <label class="error-message"><%=mensagem%></label> <br /><br />
+      <%}%>
+      <label>Informe uma senha: </label> <br>
+      <input type="password" name="senha">
+      <br>
+      <label>Confirme a Senha: </label> <br>
+      <input type="password" name="confirma"> <br>
+      <button type="submit" name="button">ACESSAR</button>
+    </form>
+
+<%- include("footer") %>

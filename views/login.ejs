@@ -1,0 +1,13 @@
+<%- include("header") %>
+
+    <h3><%=nomeCompleto%></h3>
+    <form action="/login" method="post">
+      <% if (mensagem !== "") {%>
+      <label class="error-message"><%=mensagem%></label> <br /><br />
+      <%}%>
+      <label>Informe sua senha: </label> <br />
+      <input type="password" name="senha"> <br />
+      <button type="submit" name="button">ACESSAR</button>
+    </form>
+
+<%- include("footer") %>
