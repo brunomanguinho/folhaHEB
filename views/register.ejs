@@ -1,10 +1,17 @@
 <%- include("header") %>
 
     <h3><%=nomeCompleto%></h3>
-    <form action="/register" method="post">
+    <h4>Funcionário encontrado. Confirme seus dados!</h4>
+    <form action="/register" method="post" autocomplete="off">
       <% if (mensagem !== "") {%>
       <label class="error-message"><%=mensagem%></label> <br /><br />
       <%}%>
+      <label>Nº da carteira de trabalho</label> <br />
+      <input type="text" name="clt"> <br />
+
+      <label>Nº do PIS</label> <br />
+      <input type="text" name="pis">  <br />
+
       <label>Informe uma senha: </label> <br>
       <input type="password" name="senha">
       <br>

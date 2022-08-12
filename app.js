@@ -28,7 +28,11 @@ mongoose.connect("mongodb://localhost:27017/hebDB", {useNewUrlParser: true});
 const userSchema = new mongoose.Schema({
   nome: String,
   password: String,
-  changepassword: Boolean
+  changepassword: Boolean,
+  clt_numero: String,
+  clt_serie: String,
+  cpf: String,
+  pis: String
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -50,20 +54,27 @@ app.get("/", (req, res) => {
 });
 
 app.post("/", (req, res)=>{
-  let username = req.body.nome.toUpperCase();
-  req.session.nomeCompleto = username;
+  let _cpf = req.body.cpf;
+  req.session.cpf = _cpf;
 
-  User.findOne({nome: username}, (err, foundUser)=>{
+  console.log("cpf: " + _cpf);
+  // let username = req.body.nome.toUpperCase();
+  // req.session.nomeCompleto = username;
+
+  User.findOne({cpf: _cpf}, (err, foundUser)=>{
     if (err){
       console.log(err);
     }
     else{
       if (foundUser === null){
-        res.render("index", {mensagem: "Nome não encontrado na base de dados!"});
-      } else if (foundUser.changepassword === true){
-        res.redirect("/register");
-      }else{
-        res.redirect("/login");
+        res.render("index", {mensagem: "CPF não encontrado na base de dados! Tente novamente"});
+      } else {
+        req.session.nomeCompleto = foundUser.nome;
+        if (foundUser.changepassword === true){
+          res.redirect("/register");
+        }else{
+          res.redirect("/login");
+        }
       }
     }
   })
@@ -80,42 +91,40 @@ app.get("/register", (req, res)=>{
 app.post("/register", (req, res)=>{
   let senha = req.body.senha;
   let confirma = req.body.confirma;
+  var clt = req.body.clt;
+  var pis = req.body.pis;
 
-  if (senha === confirma){
-    User.findOne({nome: req.session.nomeCompleto}, (err, foundUser)=>{
+  User.findOne({cpf: req.session.cpf}, (err, foundUser)=>{
+    console.log(clt);
+    console.log(foundUser);
+    if (foundUser.clt_numero !== clt){
+      req.session.errorMessage = "*Número da carteira de trabalho não encontrado!"
+      res.redirect("/register");
+    } else if (foundUser.pis !== pis) {
+      req.session.errorMessage = "*Número do PIS não encontrado!"
+      res.redirect("/register");
+    } else if (senha !== confirma){
+      req.session.errorMessage = "*Senhas não conferem!"
+      res.redirect("/register");
+    } else {
       foundUser.password = senha;
       foundUser.changepassword = false;
       foundUser.save();
       res.redirect("/dados")
-    //   foundUser.setPassword(senha, (err)=>{
-    //     if (!err){
-    //       // foundUser.changepassword = false;
-    //       foundUser.password = senha;
-    //       foundUser.save();
-    //       console.log("password changed = false");
-    //     } else {
-    //       console.log("Password dado: " + senha);
-    //       console.log(err);
-    //     }
-    //   });
-    //
-    //   console.log(req);
-    //
-    //   req.login(foundUser, (err)=>{
-    //   if (err){
-    //     console.log(err);
-    //   } else{
-    //     passport.authenticate("local")(req, res, () => {
-    //
-    //       res.redirect("/dados");
-    //     })
-    //   }
-    // })
-    })
-  } else {
-    req.session.errorMessage = "*As senhas informadas não conferem!"
-    res.redirect("/register");
-  }
+    }
+  })
+
+  // if (senha === confirma){
+  //   User.findOne({nome: req.session.cpf}, (err, foundUser)=>{
+  //     foundUser.password = senha;
+  //     foundUser.changepassword = false;
+  //     foundUser.save();
+  //     res.redirect("/dados")
+  //   })
+  // } else {
+  //   req.session.errorMessage = "*As senhas informadas não conferem!"
+  //   res.redirect("/register");
+  // }
 });
 
 app.get("/login", (req, res)=>{
