@@ -91,19 +91,21 @@ app.get("/register", (req, res)=>{
 app.post("/register", (req, res)=>{
   let senha = req.body.senha;
   let confirma = req.body.confirma;
-  var clt = req.body.clt;
-  var pis = req.body.pis;
+  let clt = req.body.clt;
+  let pis = req.body.pis;
 
   User.findOne({cpf: req.session.cpf}, (err, foundUser)=>{
-    console.log(clt);
-    console.log(foundUser);
     if (foundUser.clt_numero !== clt){
       req.session.errorMessage = "*Número da carteira de trabalho não encontrado!"
       res.redirect("/register");
     } else if (foundUser.pis !== pis) {
       req.session.errorMessage = "*Número do PIS não encontrado!"
       res.redirect("/register");
-    } else if (senha !== confirma){
+    } else if ( (senha === "") || (senha.length < 4) ) {
+      req.session.errorMessage = "*Senha deve conter pelo menos 4 dígitos!"
+      res.redirect("/register");
+    }
+     else if (senha !== confirma){
       req.session.errorMessage = "*Senhas não conferem!"
       res.redirect("/register");
     } else {
