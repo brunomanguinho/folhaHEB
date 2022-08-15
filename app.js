@@ -8,7 +8,7 @@ const session = require("express-session");
 const passport = require("passport");
 const mongoose = require("mongoose");
 const passportLocalMongoose = require("passport-local-mongoose");
-
+const md5 = require("md5");
 
 const app = express();
 
@@ -23,7 +23,9 @@ app.use(session({
   saveUninitialized: false
 }));
 
-mongoose.connect("mongodb://localhost:27017/hebDB", {useNewUrlParser: true});
+// mongoose.connect("mongodb://localhost:27017/hebDB", {useNewUrlParser: true});
+
+mongoose.connect("mongodb+srv://brunomanguinho:Trooper1983@cluster0.xbjht.mongodb.net/hebDB", {useNewUrlParser: true});
 
 const userSchema = new mongoose.Schema({
   nome: String,
@@ -57,10 +59,6 @@ app.post("/", (req, res)=>{
   let _cpf = req.body.cpf;
   req.session.cpf = _cpf;
 
-  console.log("cpf: " + _cpf);
-  // let username = req.body.nome.toUpperCase();
-  // req.session.nomeCompleto = username;
-
   User.findOne({cpf: _cpf}, (err, foundUser)=>{
     if (err){
       console.log(err);
@@ -80,9 +78,13 @@ app.post("/", (req, res)=>{
   })
 });
 
+
 app.get("/register", (req, res)=>{
   if ( (req.session.nomeCompleto) && (req.session.nomeCompleto !== "") ) {
-    res.render("register", {nomeCompleto: req.session.nomeCompleto, mensagem: req.session.errorMessage});
+    res.render("register", {nomeCompleto: req.session.nomeCompleto,
+                            clt: (req.session.clt ? req.session.clt : ""),
+                            pis: (req.session.pis ? req.session.pis : ""),
+                            mensagem: req.session.errorMessage});
   } else {
     res.redirect("/")
   }
@@ -95,10 +97,20 @@ app.post("/register", (req, res)=>{
   let pis = req.body.pis;
 
   User.findOne({cpf: req.session.cpf}, (err, foundUser)=>{
-    if (foundUser.clt_numero !== clt){
+    if (parseInt(foundUser.clt_numero) === parseInt(clt)){
+      req.session.clt = clt;
+    }
+
+    if (foundUser.pis === pis){
+      req.session.pis = pis;
+    }
+
+    if (parseInt(foundUser.clt_numero) !== parseInt(clt)){
+      req.session.clt = "";
       req.session.errorMessage = "*Número da carteira de trabalho não encontrado!"
       res.redirect("/register");
     } else if (foundUser.pis !== pis) {
+      req.session.pis = "";
       req.session.errorMessage = "*Número do PIS não encontrado!"
       res.redirect("/register");
     } else if ( (senha === "") || (senha.length < 4) ) {
@@ -109,7 +121,7 @@ app.post("/register", (req, res)=>{
       req.session.errorMessage = "*Senhas não conferem!"
       res.redirect("/register");
     } else {
-      foundUser.password = senha;
+      foundUser.password = md5(senha);
       foundUser.changepassword = false;
       foundUser.save();
       res.redirect("/dados")
@@ -139,7 +151,7 @@ app.get("/login", (req, res)=>{
 });
 
 app.post("/login", (req, res)=>{
-  let senha = req.body.senha;
+  let senha = md5(req.body.senha);
 
   User.findOne({nome: req.session.nomeCompleto}, (err, foundUser)=>{
     if (err){
@@ -158,7 +170,7 @@ app.post("/login", (req, res)=>{
 
 app.get("/dados", (req, res)=>{
   if ( (req.session.nomeCompleto) && (req.session.nomeCompleto !== "") ) {
-    var workbook = xlsx.readFile(__dirname + '/folha2.xlsx');
+    var workbook = xlsx.readFile(__dirname + '/folha.xlsx');
     var sheet_name_list = workbook.SheetNames;
     var xlData = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
 
