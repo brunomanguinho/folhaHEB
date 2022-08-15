@@ -188,7 +188,12 @@ app.get("/dados", (req, res)=>{
   }
 })
 
+let port = process.env.PORT;
 
-app.listen(3000, (req, res)=>{
-  console.log("Server is listening on port 3000");
+if (port == null || port == ""){
+  port = 3000;
+}
+
+app.listen(port, (req, res)=>{
+  console.log("Server has started succesfully!");
 })
