@@ -177,7 +177,7 @@ app.get("/dados", (req, res)=>{
     var dadosFunc = [];
 
     xlData.forEach((data, i) => {
-      if (data.FUNCIONARIO === req.session.nomeCompleto){
+      if (data.FUNCIONARIO.trim() === req.session.nomeCompleto.trim()){
         dadosFunc = data;
       }
     });
